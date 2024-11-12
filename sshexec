@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+import threading
+import os
+import paramiko
+import argparse
+
+def execute_ssh_command(ip, command):
+    username = os.getenv('SSH_USERNAME')
+    password = os.getenv('SSH_PASSWORD')
+    
+    if not username or not password:
+        print(f"Error: SSH_USERNAME or SSH_PASSWORD environment variable not set for {ip}")
+        return
+
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+    try:
+        ssh.connect(ip, username=username, password=password)
+        stdin, stdout, stderr = ssh.exec_command(command)
+        
+        output = stdout.read().decode('utf-8')
+        error = stderr.read().decode('utf-8')
+        
+        print(f"Output from {ip}:")
+        print(output)
+        if error:
+            print(f"Error from {ip}:")
+            print(error)
+    
+    except paramiko.AuthenticationException:
+        print(f"Authentication failed for {ip}")
+    except paramiko.SSHException as ssh_exception:
+        print(f"SSH exception occurred for {ip}: {str(ssh_exception)}")
+    except Exception as e:
+        print(f"An error occurred for {ip}: {str(e)}")
+    
+    finally:
+        ssh.close()
+
+def run_command_in_thread(ip, command):
+    thread = threading.Thread(target=execute_ssh_command, args=(ip, command))
+    thread.start()
+    return thread
+
+def read_ips_from_file(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            return [line.strip() for line in file if line.strip()]
+    except Exception as e:
+        print(f'Error reading the IP file: {e}')
+        return []
+
+def get_command_for_ip(ip, base_command):
+    return base_command.replace('{ip}', ip)
+
+def main():
+    parser = argparse.ArgumentParser(description='Execute SSH commands on multiple machines.')
+    parser.add_argument('file', help='Path to the file containing IP addresses')
+    parser.add_argument('command', help='Command to execute on each machine. Use {ip} to include the IP in the command.')
+    args = parser.parse_args()
+
+    ips = read_ips_from_file(args.file)
+
+    if not ips:
+        print("No IPs found or error reading the file. Exiting.")
+        return
+
+    threads = []
+    for ip in ips:
+        command = get_command_for_ip(ip, args.command)
+        thread = run_command_in_thread(ip, command)
+        threads.append(thread)
+
+    for thread in threads:
+        thread.join()
+
+    print("All commands executed.")
+
+if __name__ == "__main__":
+    main()
