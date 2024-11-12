@@ -24,15 +24,16 @@ options:
 ```
 
 ```
-usage: sshexec [-h] file command
+usage: sshexec [-h] [-v] file command
 
 Execute SSH commands on multiple machines.
 
 positional arguments:
-  file        Path to the file containing IP addresses
-  command     Command to execute on each machine. Use {ip} to include the IP in the command.
+  file           Path to the file containing IP addresses
+  command        Command to execute on each machine. Use {ip} to include the IP in the command.
 
 options:
-  -h, --help  show this help message and exit
+  -h, --help     show this help message and exit
+  -v, --verbose  Enable verbose output
 ```
 > for this you can also use {ip} in the `command`
