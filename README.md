@@ -2,6 +2,7 @@
 Scripts to aid ssh copy/download/exec on multiple servers multi-threaded
 
 
+```
 usage: sshcopy [-h] [--download] file local_path remote_path
 
 Copy files to/from multiple machines using SCP.
@@ -14,10 +15,12 @@ positional arguments:
 options:
   -h, --help   show this help message and exit
   --download   Download files from remote to local (default is upload)
+```
 
-
-usage: sshexec [-h] file command
 > for this you can alos use {ip} in the `command`
+```
+usage: sshexec [-h] file command
+
 Execute SSH commands on multiple machines.
 
 positional arguments:
@@ -26,3 +29,4 @@ positional arguments:
 
 options:
   -h, --help  show this help message and exit
+```
