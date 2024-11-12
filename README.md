@@ -1,6 +1,12 @@
 # multipleSSH
 Scripts to aid ssh copy/download/exec on multiple servers multi-threaded
 
+You must have the same username and password on all machines.
+To set username and password
+```
+export SSH_USERNAME=Redacted
+export SSH_PASSWORD=Redacted
+```
 
 ```
 usage: sshcopy [-h] [--download] file local_path remote_path
