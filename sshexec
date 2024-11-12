@@ -3,6 +3,7 @@ import threading
 import os
 import paramiko
 import argparse
+import time
 
 def execute_ssh_command(ip, command, verbose):
     username = os.getenv('SSH_USERNAME')
@@ -17,10 +18,33 @@ def execute_ssh_command(ip, command, verbose):
 
     try:
         ssh.connect(ip, username=username, password=password)
-        stdin, stdout, stderr = ssh.exec_command(command)
         
-        output = stdout.read().decode('utf-8')
-        error = stderr.read().decode('utf-8')
+        is_sudo = command.strip().startswith('sudo')
+        
+        if is_sudo:
+            # Use sudo with password
+            channel = ssh.get_transport().open_session()
+            channel.get_pty()
+            channel.exec_command(command)
+            
+            # Wait for password prompt
+            while not channel.recv_ready() and not channel.closed:
+                time.sleep(0.1)
+            
+            # Send password
+            channel.send(password + '\n')
+            
+            # Wait for command to complete
+            while not channel.exit_status_ready():
+                time.sleep(0.1)
+            
+            output = channel.recv(1024).decode('utf-8')
+            error = channel.recv_stderr(1024).decode('utf-8')
+        else:
+            # Non-sudo command
+            stdin, stdout, stderr = ssh.exec_command(command)
+            output = stdout.read().decode('utf-8')
+            error = stderr.read().decode('utf-8')
         
         if verbose:
             print(f"Output from {ip}:")
