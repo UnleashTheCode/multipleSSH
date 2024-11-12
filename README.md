@@ -37,4 +37,5 @@ options:
   -v, --verbose  Enable verbose output
 ```
 > for this you can also use {ip} in the `command`
+> 
 > This also works with sudo, but to work sudo needs to be at the start of command. ex: `sudo rm example`
