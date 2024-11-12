@@ -4,7 +4,7 @@ import os
 import paramiko
 import argparse
 
-def execute_ssh_command(ip, command):
+def execute_ssh_command(ip, command, verbose):
     username = os.getenv('SSH_USERNAME')
     password = os.getenv('SSH_PASSWORD')
     
@@ -22,11 +22,14 @@ def execute_ssh_command(ip, command):
         output = stdout.read().decode('utf-8')
         error = stderr.read().decode('utf-8')
         
-        print(f"Output from {ip}:")
-        print(output)
-        if error:
-            print(f"Error from {ip}:")
-            print(error)
+        if verbose:
+            print(f"Output from {ip}:")
+            print(output)
+            if error:
+                print(f"Error from {ip}:")
+                print(error)
+        else:
+            print(f"Command executed on {ip}")
     
     except paramiko.AuthenticationException:
         print(f"Authentication failed for {ip}")
@@ -38,8 +41,8 @@ def execute_ssh_command(ip, command):
     finally:
         ssh.close()
 
-def run_command_in_thread(ip, command):
-    thread = threading.Thread(target=execute_ssh_command, args=(ip, command))
+def run_command_in_thread(ip, command, verbose):
+    thread = threading.Thread(target=execute_ssh_command, args=(ip, command, verbose))
     thread.start()
     return thread
 
@@ -58,6 +61,7 @@ def main():
     parser = argparse.ArgumentParser(description='Execute SSH commands on multiple machines.')
     parser.add_argument('file', help='Path to the file containing IP addresses')
     parser.add_argument('command', help='Command to execute on each machine. Use {ip} to include the IP in the command.')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
     args = parser.parse_args()
 
     ips = read_ips_from_file(args.file)
@@ -66,10 +70,12 @@ def main():
         print("No IPs found or error reading the file. Exiting.")
         return
 
+    print("Executing commands...")
+
     threads = []
     for ip in ips:
         command = get_command_for_ip(ip, args.command)
-        thread = run_command_in_thread(ip, command)
+        thread = run_command_in_thread(ip, command, args.verbose)
         threads.append(thread)
 
     for thread in threads:
