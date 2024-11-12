@@ -17,7 +17,6 @@ options:
   --download   Download files from remote to local (default is upload)
 ```
 
-> for this you can alos use {ip} in the `command`
 ```
 usage: sshexec [-h] file command
 
@@ -30,3 +29,4 @@ positional arguments:
 options:
   -h, --help  show this help message and exit
 ```
+> for this you can also use {ip} in the `command`
