@@ -37,9 +37,12 @@ def copy_file(ip, local_path, remote_path, is_upload):
         ssh.close()
 
 def copy_file_thread(ip, local_path, remote_path, is_upload):
-    thread = threading.Thread(target=copy_file, args=(ip, local_path, remote_path, is_upload))
+    thread = threading.Thread(target=copy_file, args=(ip, local_path, get_copy_for_ip(ip,remote_path), is_upload))
     thread.start()
     return thread
+
+def get_copy_for_ip(ip, base_command):
+    return base_command.replace('{ip}', ip)
 
 def read_ips_from_file(file_path):
     try:
