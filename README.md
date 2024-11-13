@@ -8,6 +8,7 @@ export SSH_USERNAME=Redacted
 export SSH_PASSWORD=Redacted
 ```
 
+> you can also use {ip} in the `command`
 ```
 usage: sshcopy [-h] [--download] file local_path remote_path
 
@@ -36,6 +37,5 @@ options:
   -h, --help     show this help message and exit
   -v, --verbose  Enable verbose output
 ```
-> for this you can also use {ip} in the `command`
-> 
+ 
 > This also works with sudo, but to work sudo needs to be at the start of command. ex: `sudo rm example`
